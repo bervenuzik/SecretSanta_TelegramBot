@@ -3,7 +3,6 @@ package se.berveno.vladyslav.bot.services;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import se.berveno.vladyslav.bot.model.Member;
 import se.berveno.vladyslav.bot.repositories.MemberRepo;
@@ -40,12 +39,17 @@ public class MemberService {
         return  repo.findById(id);
     }
 
-    public boolean isMemberAlredyExist(Long userId) {
+    public boolean isMemberExist(Long userId) {
         return repo.existsById(userId);
     }
-    public boolean saveMember(Member member){
-        Member savedMember = repo.save(member);
-        if(savedMember == null) return  false;
-        return true;
+    public Optional<Member> saveMember(Member member){
+        return  Optional.of(repo.save(member));
+
+    }
+    public void deleteById(Long id){
+        repo.deleteById(id);
+    }
+    public  void delete(Member member){
+        repo.delete(member);
     }
 }

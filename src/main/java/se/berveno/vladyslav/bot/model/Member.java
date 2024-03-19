@@ -25,7 +25,8 @@ public class Member {
     @Column(name = "wishes",nullable = false, columnDefinition = "TEXT")
     private String wish;
 
-
+    @ManyToMany(mappedBy = "members" , fetch = FetchType.EAGER)
+    Set<ChatEntity> chats;
 
     public Member(Long id, String name , String nickName) {
         this.id = id;
