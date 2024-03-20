@@ -17,6 +17,4 @@ public class BotConfig {
 
     @Value(value = "${bot.token}")
     String tocken;
-
-
 }

@@ -36,7 +36,38 @@ public class SantaBot  extends TelegramLongPollingBot{
 
 
     private SendMessage sender;
-    private final String HELP_MESSAGE =  "This bot is developed for friend.\nIt is fully free\nYou can create only one party, but you can participate in many";
+    private final String HELP_MESSAGE =  "Hi, i'm very glad that you want to use this bot." +
+            "here are instructions to start a Secret Santa game" +
+            "1. This bot to your group-chat" +
+            "2. Use command /registrate_chat to add your chatt to bot's system." +
+            "3. Every person who want to take a part shoud use /join command in your group chat." +
+            "4. When all persons who wanted to join did it, use /start_secret_santa command to star a game." +
+            "\n" +
+            "You can also describe what you want to get for present." +
+            "To do that you should: " +
+            "1. Go in to private chat with bot." +
+            "2. Write manualy command /wish_" +
+            "3. everything that you write after '_' symbol willl be saved as your wish." +
+            "\n" +
+            "Here comes description of all commands you can use:" +
+            "/help" +
+            "\nto see this message" +
+            "/registrate_chat" +
+            "\nto registrate chat in bot's system" +
+            "/unregisterate_chat" +
+            "\nto delete your chat from bot's system before you want to delete a bot from chat" +
+            "/join" +
+            "\nto join Secret Santa game" +
+            "/unjoin" +
+            "\nto left game if you changed your mind" +
+            "/wish_{text of your whis}" +
+            "\n to add a wish before you star a game. Write it manually in private chat with bot" +
+            "/show_all" +
+            "\nto show all persons who joined a game" +
+            "/delete_me" +
+            "\nto delete you from bot's system and unjoin all Games that you already joined.Use it in private chat with bot" +
+            "/reset" +
+            "\nuse it if you want to reset all participants of game or want to star a game from beginning";
     private final String WRONG_INPUT_MESSAGE =  "Sorry , this command is not supported";
 
     @Autowired
@@ -122,13 +153,16 @@ public class SantaBot  extends TelegramLongPollingBot{
             }catch (TelegramBotCustomExeption exp){
                 log.error(exp.getMessage() + exp.getStackTrace());
                 sendMessage(exp.getMessage(),update);
+            }catch (Exception exp){
+                log.error(exp.getMessage() + exp.getStackTrace());
+                sendMessage("Opsss, something went wron , try again",update);
             }
 
         }
         @Transactional(noRollbackFor = TelegramApiException.class)
         public void deleteUser(Update update) {
         if(!isPrivateChat(update)){
-            throw new WrongChatExeption("You should add wishes in private chat with this bot");
+            throw new WrongChatExeption("You should use this command in private chat with bot");
         }
         Long memberID = getMemberId(update);
         Optional<Member> memberOpt = memberService.getMemberById(memberID);
@@ -365,6 +399,9 @@ public class SantaBot  extends TelegramLongPollingBot{
         String memberNickName = member.getNickName();
         if(ChatEntityOpt.isPresent()){
             ChatEntity chatEntity = ChatEntityOpt.get();
+            if(chatEntity.getStarted()){
+                throw new GameAlredyStartedExeption("You cant join , game is already started. Use reset command if you want to add more participants ");
+            }
             Long userId = member.getId();
             String nickName = member.getNickName();
             String firstName = update.getMessage().getFrom().getFirstName();
@@ -376,7 +413,7 @@ public class SantaBot  extends TelegramLongPollingBot{
                 chatService.saveChat(chatEntity);
                 sendMessage("@"+ memberNickName + " have joined Secret Santa Game!", update);
         }else {
-            throw  new ChatIsNotExistExeption("You didn't registrate this chat yet");
+            throw  new ChatIsNotExistExeption("You didn't registrated this chat yet");
         }
     }
 
