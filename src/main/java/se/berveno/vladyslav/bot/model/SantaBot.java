@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.commands.GetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -36,38 +37,39 @@ public class SantaBot  extends TelegramLongPollingBot{
 
 
     private SendMessage sender;
-    private final String HELP_MESSAGE =  "Hi, i'm very glad that you want to use this bot." +
+    private final String HELP_MESSAGE =  "Hi, i'm very glad that you want to use this bot.\n" +
             "here are instructions to start a Secret Santa game" +
-            "1. This bot to your group-chat" +
-            "2. Use command /registrate_chat to add your chatt to bot's system." +
-            "3. Every person who want to take a part shoud use /join command in your group chat." +
-            "4. When all persons who wanted to join did it, use /start_secret_santa command to star a game." +
+            "\n\n1. This bot to your group-chat and make him admin" +
+            "\n2. Use command /registrate_chat to add your chatt to bot's system." +
+            "\n3. Every person who want to take a part shoud use /join command in your group chat." +
+            "\n4. When all persons who wanted to join did it, use /start_secret_santa command to star a game." +
             "\n" +
-            "You can also describe what you want to get for present." +
-            "To do that you should: " +
-            "1. Go in to private chat with bot." +
-            "2. Write manualy command /wish_" +
-            "3. everything that you write after '_' symbol willl be saved as your wish." +
+            "\nYou can also describe what you want to get for present. " +
+            "\nTo do that you should: " +
+            "\n1. Go in to private chat with bot." +
+            "\n2. Write manualy command /wish_" +
+            "\n3. everything that you write after '_' symbol will be saved as your wish." +
             "\n" +
-            "Here comes description of all commands you can use:" +
-            "/help" +
+            "\nHere comes description of all commands you can use:" +
+            "\n/help" +
             "\nto see this message" +
-            "/registrate_chat" +
+            "\n/registrate_chat" +
             "\nto registrate chat in bot's system" +
-            "/unregisterate_chat" +
+            "\n/unregisterate_chat" +
             "\nto delete your chat from bot's system before you want to delete a bot from chat" +
-            "/join" +
+            "\n/join" +
             "\nto join Secret Santa game" +
-            "/unjoin" +
+            "\n/unjoin" +
             "\nto left game if you changed your mind" +
-            "/wish_{text of your whis}" +
-            "\n to add a wish before you star a game. Write it manually in private chat with bot" +
-            "/show_all" +
+            "\n/wish_{text of your wish}" +
+            "\nto add a wish before you star a game. Write it manually in private chat with bot" +
+            "\n/show_all" +
             "\nto show all persons who joined a game" +
-            "/delete_me" +
+            "\n/delete_me" +
             "\nto delete you from bot's system and unjoin all Games that you already joined.Use it in private chat with bot" +
-            "/reset" +
-            "\nuse it if you want to reset all participants of game or want to star a game from beginning";
+            "\n/reset" +
+            "\nuse it if you want to reset all participants of game or want to star a game from beginning" +
+            "\n\n Thank you for using";
     private final String WRONG_INPUT_MESSAGE =  "Sorry , this command is not supported";
 
     @Autowired
@@ -77,14 +79,17 @@ public class SantaBot  extends TelegramLongPollingBot{
         this.chatService = chatService;
         this.memberService = memberService;
         sender = new SendMessage();
-        List<BotCommand> botCommands = createBotCommands();
         try {
+            this.execute(new SetMyCommands(new ArrayList<>() ,new BotCommandScopeDefault(),null ));
+            List<BotCommand> botCommands = createBotCommands();
             this.execute(new SetMyCommands(botCommands, new BotCommandScopeDefault(),null));
         } catch (TelegramApiException e) {
             log.error("Error setting bot commands " + e.getMessage()+ " in  ===> " + e.getClass());
         }
 
     }
+
+
     private List<BotCommand> createBotCommands(){
         List<BotCommand> botCommands = new ArrayList<>();
         List<MyBotCommands> commands = List.of(MyBotCommands.class.getEnumConstants());
